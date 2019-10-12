@@ -14,6 +14,22 @@ path = args.input_model_path
 
 input_model = torch.load(args.input_model_path, map_location='cpu')
 
+
+old_keys = []
+new_keys = []
+for key in input_model.keys():
+    new_key = None
+    if 'gamma' in key:
+        new_key = key.replace('gamma', 'weight')
+    if 'beta' in key:
+        new_key = key.replace('beta', 'bias')
+    if new_key:
+        old_keys.append(key)
+        new_keys.append(new_key)
+for old_key, new_key in zip(old_keys, new_keys):
+    input_model[new_key] = input_model.pop(old_key)
+
+
 output_model = collections.OrderedDict()
 
 output_model["embedding.word_embedding.weight"] = input_model["bert.embeddings.word_embeddings.weight"]
